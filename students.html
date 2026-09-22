@@ -1,1 +1,191 @@
 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سجل التلاميذ - منصة بذرة</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { --primary-color: #2c3e50; --secondary-color: #34495e; --accent-color: #3498db; --bg-color: #f4f7f6; --card-bg: #ffffff; --success-color: #27ae60; --danger-color: #e74c3c; }
+        
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-color); margin: 0; padding: 70px 15px 20px 15px; display: flex; flex-direction: column; align-items: center; min-height: 100dvh; box-sizing: border-box; }
+        
+        .back-btn-fixed { position: fixed; top: 15px; right: 15px; z-index: 9999; background-color: var(--primary-color); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .back-btn-fixed:hover { background-color: #1a252f; transform: scale(1.05); }
+        
+        .page-container { width: 100%; max-width: 900px; background-color: var(--card-bg); border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); padding: 25px; box-sizing: border-box; }
+        .page-title { text-align: center; color: var(--primary-color); margin: 0 0 20px 0; font-size: 1.8rem; border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; }
+        
+        .form-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .form-input, .form-select { flex: 1; min-width: 200px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 1rem; outline: none; background-color: #fff; }
+        .form-input:focus, .form-select:focus { border-color: var(--accent-color); }
+        
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: bold; font-size: 1rem; transition: 0.3s; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-add { background-color: var(--success-color); }
+        .btn-add:hover { background-color: #219653; }
+        .btn-delete { background-color: var(--danger-color); padding: 6px 12px; font-size: 0.9rem; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: right; border-bottom: 1px solid #ddd; }
+        th { background-color: var(--primary-color); color: white; }
+        tr:hover { background-color: #f1f2f6; }
+        
+        @media (max-width: 600px) { 
+            body { padding-top: 65px; } 
+            .back-btn-fixed { padding: 8px 15px; font-size: 0.9rem; } 
+            .form-group { flex-direction: column; } 
+            .btn { width: 100%; } 
+            th, td { padding: 8px; font-size: 0.9rem; } 
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn-fixed"><i class="fa-solid fa-arrow-right"></i> الرئيسية</a>
+    
+    <div class="page-container">
+        <h2 class="page-title"><i class="fa-solid fa-users"></i> سجل التلاميذ (اختيار الصف)</h2>
+        
+        <div class="form-group">
+            <input type="text" id="studentName" class="form-input" placeholder="اسم التلميذ الثلاثي">
+            
+            <!-- قائمة منسدلة لاختيار الصف من النظام -->
+            <select id="studentClass" class="form-select">
+                <option value="">-- اختر الصف والشعبة --</option>
+            </select>
+            
+            <button class="btn btn-add" onclick="addNewStudent()"><i class="fa-solid fa-plus"></i> إضافة التلميذ</button>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ت</th>
+                        <th>اسم التلميذ</th>
+                        <th>الصف والشعبة</th>
+                        <th>الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsList">
+                    <tr><td colspan="4" style="text-align: center;">جاري تحميل البيانات...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="module">
+        import { 
+            collection, 
+            addDoc, 
+            deleteDoc, 
+            doc, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        async function initPage() {
+            if (!window.db) {
+                setTimeout(initPage, 500);
+                return;
+            }
+
+            const db = window.db;
+            const studentsTable = document.getElementById('studentsList');
+            const classSelect = document.getElementById('studentClass');
+
+            // 1. تحميل الصفوف المتاحة من قاعدة البيانات (أو التخزين المحلي إذا كنت تخزنها هناك)
+            // سنقوم بجلبها من localStorage كخيار أول لتوافقية صفحة (إضافة الصفوف)
+            loadClassesToDropdown();
+
+            // 2. جلب التلاميذ من سحابة Firestore ومزامنتهم لحظياً
+            onSnapshot(collection(db, "students"), (snapshot) => {
+                studentsTable.innerHTML = '';
+                if (snapshot.empty) {
+                    studentsTable.innerHTML = '<tr><td colspan="4" style="text-align: center;">لا يوجد تلاميذ مضافين حالياً.</td></tr>';
+                    return;
+                }
+
+                let index = 1;
+                snapshot.forEach((documentSnapshot) => {
+                    const std = documentSnapshot.data();
+                    const docId = documentSnapshot.id;
+
+                    studentsTable.innerHTML += `<tr>
+                        <td>${index++}</td>
+                        <td>${std.name}</td>
+                        <td>${std.classRoom}</td>
+                        <td><button class="btn btn-delete" onclick="removeStudent('${docId}')"><i class="fa-solid fa-trash"></i> حذف</button></td>
+                    </tr>`;
+                });
+            }, (error) => {
+                console.error("خطأ في جلب البيانات: ", error);
+            });
+        }
+
+        // دالة ملء قائمة الصفوف والشعب
+        function loadClassesToDropdown() {
+            const classSelect = document.getElementById('studentClass');
+            // افترضنا أن الصفوف تُحفظ في localStorage تحت مفتاح 'bthra_classes' من صفحة إضافة الصفوف
+            const savedClasses = JSON.parse(localStorage.getItem('bthra_classes')) || [
+                "السادس الابتدائي - أ",
+                "السادس الابتدائي - ب",
+                "الخامس الابتدائي - أ",
+                "الرابع الابتدائي - أ"
+            ]; // صفوف افتراضية في حال لم تقم بإضافتها بعد
+
+            classSelect.innerHTML = '<option value="">-- اختر الصف والشعبة --</option>';
+            savedClasses.forEach(cls => {
+                // التعامل مع ما إذا كانت الصفوف مخزنة كنصوص أو ككائنات
+                const className = typeof cls === 'object' ? (cls.name || cls.className) : cls;
+                classSelect.innerHTML += `<option value="${className}">${className}</option>`;
+            });
+        }
+
+        // إضافة تلميذ جديد إلى السحابة
+        window.addNewStudent = async function() {
+            const nameInput = document.getElementById('studentName');
+            const classSelect = document.getElementById('studentClass');
+            const name = nameInput.value.trim();
+            const classRoom = classSelect.value;
+
+            if (!name || !classRoom) {
+                alert('الرجاء إدخال اسم التلميذ واختيار الصف!');
+                return;
+            }
+
+            try {
+                const db = window.db;
+                await addDoc(collection(db, "students"), {
+                    name: name,
+                    classRoom: classRoom,
+                    createdAt: new Date()
+                });
+                nameInput.value = '';
+                classSelect.value = '';
+            } catch (e) {
+                alert('حدث خطأ أثناء الإضافة: ' + e.message);
+            }
+        };
+
+        // حذف تلميذ من السحابة
+        window.removeStudent = async function(docId) {
+            if (confirm('هل أنت متأكد من حذف هذا التلميذ؟')) {
+                try {
+                    const db = window.db;
+                    await deleteDoc(doc(db, "students", docId));
+                } catch (e) {
+                    alert('خطأ أثناء الحذف: ' + e.message);
+                }
+            }
+        }
+
+        initPage();
+    </script>
+</body>
+</html>
