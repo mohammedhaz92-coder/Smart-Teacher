@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل الخبرات - إدارة المدرسة</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --btn-hover: #2980b9;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
+        }
+
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .page-container { width: 100%; max-width: 1000px; }
+        
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; background-color: var(--primary-color); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; margin-bottom: 20px; transition: all 0.3s ease; width: fit-content; }
+        .back-btn:hover { background-color: var(--btn-hover); transform: translateX(5px); }
+
+        .content-card { background-color: var(--card-bg); border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); padding: 30px; box-sizing: border-box; margin-bottom: 30px; width: 100%; }
+        .page-title { text-align: center; color: var(--primary-color); margin-top: 0; margin-bottom: 25px; font-size: 1.8rem; }
+
+        /* نظام التبويبات */
+        .tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 25px; flex-wrap: wrap; }
+        .tab-btn { background-color: #e9ecef; color: var(--text-main); border: none; padding: 12px 20px; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 1.05rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
+        .tab-btn.active { background-color: var(--primary-color); color: #fff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* نماذج الإدخال */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background-color: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #e9ecef; margin-bottom: 25px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-weight: 700; color: var(--secondary-color); font-size: 1.05rem; }
+        .input-group input, .input-group select { font-family: 'Tajawal', sans-serif; font-size: 1.05rem; padding: 10px; border: 1px solid #dcdde1; border-radius: 8px; outline: none; width: 100%; box-sizing: border-box; background-color: #fff; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); }
+        
+        .btn-add { background-color: var(--accent-color); color: white; border: none; padding: 12px; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease; display: flex; justify-content: center; align-items: center; gap: 8px; grid-column: 1 / -1; margin-top: 10px; }
+        .btn-add:hover { background-color: var(--btn-hover); }
+        .btn-delete { background-color: var(--danger-color); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; font-weight: bold; }
+        .btn-delete:hover { background-color: #c0392b; }
+
+        /* الجداول */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #e9ecef; padding: 12px; text-align: center; font-size: 1.05rem; }
+        th { background-color: var(--primary-color); color: white; font-weight: 700; }
+        td { background-color: #fff; vertical-align: middle; }
+        
+        .cert-badge { padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        .cert-yes { background-color: #d4edda; color: #155724; }
+        .cert-no { background-color: #f8d7da; color: #721c24; }
+
+        /* التصميم للهواتف */
+        @media (max-width: 768px) {
+            .content-card { padding: 20px 15px; }
+            .form-grid { grid-template-columns: 1fr; gap: 12px; }
+            .tabs { flex-direction: column; }
+            .tab-btn { justify-content: center; }
+            
+            thead { display: none; }
+            table, tbody, tr, td { display: block; width: 100%; box-sizing: border-box; }
+            tr { border: 1px solid #e9ecef; border-radius: 12px; margin-bottom: 15px; background-color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.03); overflow: hidden; }
+            td { border: none; border-bottom: 1px dashed #eee; padding: 12px 15px; text-align: left; position: relative; display: flex; justify-content: space-between; align-items: center; }
+            td:last-child { border-bottom: none; background-color: #f8f9fa; justify-content: center; }
+            td::before { content: attr(data-label); font-weight: 700; color: var(--secondary-color); margin-left: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+        <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-right"></i> الرجوع للرئيسية</a>
+
+        <div class="content-card">
+            <h2 class="page-title"><i class="fa-solid fa-medal"></i> سجل الخبرات والمشاركات</h2>
+
+            <!-- أزرار التبويبات -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('coursesTab', this)"><i class="fa-solid fa-certificate"></i> الدورات التدريبية</button>
+                <button class="tab-btn" onclick="switchTab('examTab', this)"><i class="fa-solid fa-file-signature"></i> مراكز الفحص</button>
+                <button class="tab-btn" onclick="switchTab('proctorTab', this)"><i class="fa-solid fa-eye"></i> المراقبات</button>
+                <button class="tab-btn" onclick="switchTab('thanksTab', this)"><i class="fa-solid fa-award"></i> كتب الشكر</button>
+            </div>
+
+            <!-- ================= التبويب الأول: الدورات ================= -->
+            <div id="coursesTab" class="tab-content active">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>اسم الدورة</label>
+                        <input type="text" id="course_name" placeholder="مثال: طرائق التدريس الحديثة">
+                    </div>
+                    <div class="input-group">
+                        <label>المكان / الجهة المنفذة</label>
+                        <input type="text" id="course_loc" placeholder="مثال: مديرية التربية">
+                    </div>
+                    <div class="input-group">
+                        <label>تاريخ البداية</label>
+                        <input type="date" id="course_start">
+                    </div>
+                    <div class="input-group">
+                        <label>تاريخ الانتهاء</label>
+                        <input type="date" id="course_end">
+                    </div>
+                    <div class="input-group">
+                        <label>هل توجد شهادة مشاركة؟</label>
+                        <select id="course_cert">
+                            <option value="نعم">نعم، حصلت على شهادة</option>
+                            <option value="لا">لا توجد شهادة</option>
+                        </select>
+                    </div>
+                    <button class="btn-add" onclick="addCourse()"><i class="fa-solid fa-plus"></i> إضافة الدورة</button>
+                </div>
+                
+                <table>
+                    <thead><tr><th>اسم الدورة</th><th>المكان</th><th>البداية</th><th>الانتهاء</th><th>الشهادة</th><th>إجراء</th></tr></thead>
+                    <tbody id="coursesBody"></tbody>
+                </table>
+            </div>
+
+            <!-- ================= التبويب الثاني: مراكز الفحص ================= -->
+            <div id="examTab" class="tab-content">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>المادة</label>
+                        <input type="text" id="exam_sub" placeholder="مثال: العلوم" value="العلوم">
+                    </div>
+                    <div class="input-group">
+                        <label>السنة الدراسية</label>
+                        <input type="text" id="exam_year" placeholder="مثال: 2025-2026">
+                    </div>
+                    <div class="input-group">
+                        <label>الدور</label>
+                        <select id="exam_session">
+                            <option value="الدور الأول">الدور الأول</option>
+                            <option value="الدور الثاني">الدور الثاني</option>
+                            <option value="الدور الثالث">الدور الثالث</option>
+                            <option value="التمهيدي">التمهيدي</option>
+                        </select>
+                    </div>
+                    <button class="btn-add" onclick="addExam()"><i class="fa-solid fa-plus"></i> إضافة مشاركة بالفحص</button>
+                </div>
+
+                <table>
+                    <thead><tr><th>المادة</th><th>السنة الدراسية</th><th>الدور</th><th>إجراء</th></tr></thead>
+                    <tbody id="examsBody"></tbody>
+                </table>
+            </div>
+
+            <!-- ================= التبويب الثالث: المراقبات ================= -->
+            <div id="proctorTab" class="tab-content">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>اسم المدرسة أو الكلية</label>
+                        <input type="text" id="proc_loc" placeholder="المكان الذي راقبت فيه">
+                    </div>
+                    <div class="input-group">
+                        <label>السنة الدراسية</label>
+                        <input type="text" id="proc_year" placeholder="مثال: 2025-2026">
+                    </div>
+                    <div class="input-group">
+                        <label>الدور</label>
+                        <select id="proc_session">
+                            <option value="الدور الأول">الدور الأول</option>
+                            <option value="الدور الثاني">الدور الثاني</option>
+                            <option value="الدور الثالث">الدور الثالث</option>
+                            <option value="التمهيدي">التمهيدي</option>
+                        </select>
+                    </div>
+                    <button class="btn-add" onclick="addProctor()"><i class="fa-solid fa-plus"></i> إضافة مراقبة</button>
+                </div>
+
+                <table>
+                    <thead><tr><th>المكان (المدرسة/الكلية)</th><th>السنة الدراسية</th><th>الدور</th><th>إجراء</th></tr></thead>
+                    <tbody id="proctorsBody"></tbody>
+                </table>
+            </div>
+
+            <!-- ================= التبويب الرابع: كتب الشكر ================= -->
+            <div id="thanksTab" class="tab-content">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>الجهة المانحة (الشكر من)</label>
+                        <input type="text" id="thank_giver" placeholder="مثال: معالي وزير التربية / مدير التربية">
+                    </div>
+                    <div class="input-group">
+                        <label>العدد (رقم الكتاب)</label>
+                        <input type="text" id="thank_num" placeholder="مثال: 12345">
+                    </div>
+                    <div class="input-group">
+                        <label>التاريخ</label>
+                        <input type="date" id="thank_date">
+                    </div>
+                    <div class="input-group">
+                        <label>موضوع الشكر</label>
+                        <input type="text" id="thank_subject" placeholder="مثال: للجهود المبذولة في نسب النجاح">
+                    </div>
+                    <button class="btn-add" onclick="addThank()"><i class="fa-solid fa-plus"></i> إضافة كتاب شكر</button>
+                </div>
+
+                <table>
+                    <thead><tr><th>الجهة المانحة</th><th>العدد</th><th>التاريخ</th><th>موضوع الشكر</th><th>إجراء</th></tr></thead>
+                    <tbody id="thanksBody"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // التبديل بين التبويبات
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // 1. برمجة قسم الدورات
+        let courses = JSON.parse(localStorage.getItem('exp_courses')) || [];
+        
+        function renderCourses() {
+            const tbody = document.getElementById('coursesBody');
+            tbody.innerHTML = courses.length ? '' : '<tr><td colspan="6" style="text-align:center;">لا توجد دورات مضافة</td></tr>';
+            courses.forEach(c => {
+                const certClass = c.cert === 'نعم' ? 'cert-yes' : 'cert-no';
+                tbody.innerHTML += `
+                    <tr>
+                        <td data-label="اسم الدورة:"><strong>${c.name}</strong></td>
+                        <td data-label="المكان:">${c.loc}</td>
+                        <td data-label="تاريخ البداية:">${c.start}</td>
+                        <td data-label="تاريخ الانتهاء:">${c.end}</td>
+                        <td data-label="الشهادة:"><span class="cert-badge ${certClass}">${c.cert}</span></td>
+                        <td data-label="إجراء:"><button class="btn-delete" onclick="deleteItem('exp_courses', ${c.id})"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>`;
+            });
+        }
+
+        function addCourse() {
+            const name = document.getElementById('course_name').value;
+            const loc = document.getElementById('course_loc').value;
+            const start = document.getElementById('course_start').value;
+            const end = document.getElementById('course_end').value;
+            const cert = document.getElementById('course_cert').value;
+
+            if(!name || !loc) return alert('يرجى كتابة اسم الدورة والمكان');
+            
+            courses.push({ id: Date.now(), name, loc, start, end, cert });
+            localStorage.setItem('exp_courses', JSON.stringify(courses));
+            renderCourses();
+            
+            document.getElementById('course_name').value = '';
+            document.getElementById('course_loc').value = '';
+        }
+
+        // 2. برمجة قسم مراكز الفحص
+        let exams = JSON.parse(localStorage.getItem('exp_exams')) || [];
+        
+        function renderExams() {
+            const tbody = document.getElementById('examsBody');
+            tbody.innerHTML = exams.length ? '' : '<tr><td colspan="4" style="text-align:center;">لا توجد مشاركات مضافة</td></tr>';
+            exams.forEach(e => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td data-label="المادة:"><strong>${e.sub}</strong></td>
+                        <td data-label="السنة:">${e.year}</td>
+                        <td data-label="الدور:">${e.session}</td>
+                        <td data-label="إجراء:"><button class="btn-delete" onclick="deleteItem('exp_exams', ${e.id})"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>`;
+            });
+        }
+
+        function addExam() {
+            const sub = document.getElementById('exam_sub').value;
+            const year = document.getElementById('exam_year').value;
+            const session = document.getElementById('exam_session').value;
+
+            if(!sub || !year) return alert('يرجى تعبئة كافة الحقول');
+            
+            exams.push({ id: Date.now(), sub, year, session });
+            localStorage.setItem('exp_exams', JSON.stringify(exams));
+            renderExams();
+            document.getElementById('exam_year').value = '';
+        }
+
+        // 3. برمجة قسم المراقبات
+        let proctors = JSON.parse(localStorage.getItem('exp_proctors')) || [];
+        
+        function renderProctors() {
+            const tbody = document.getElementById('proctorsBody');
+            tbody.innerHTML = proctors.length ? '' : '<tr><td colspan="4" style="text-align:center;">لا توجد مراقبات مضافة</td></tr>';
+            proctors.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td data-label="المكان:"><strong>${p.loc}</strong></td>
+                        <td data-label="السنة:">${p.year}</td>
+                        <td data-label="الدور:">${p.session}</td>
+                        <td data-label="إجراء:"><button class="btn-delete" onclick="deleteItem('exp_proctors', ${p.id})"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>`;
+            });
+        }
+
+        function addProctor() {
+            const loc = document.getElementById('proc_loc').value;
+            const year = document.getElementById('proc_year').value;
+            const session = document.getElementById('proc_session').value;
+
+            if(!loc || !year) return alert('يرجى تعبئة كافة الحقول');
+            
+            proctors.push({ id: Date.now(), loc, year, session });
+            localStorage.setItem('exp_proctors', JSON.stringify(proctors));
+            renderProctors();
+            
+            document.getElementById('proc_loc').value = '';
+            document.getElementById('proc_year').value = '';
+        }
+
+        // 4. برمجة قسم كتب الشكر
+        let thanks = JSON.parse(localStorage.getItem('exp_thanks')) || [];
+        
+        function renderThanks() {
+            const tbody = document.getElementById('thanksBody');
+            tbody.innerHTML = thanks.length ? '' : '<tr><td colspan="5" style="text-align:center;">لا توجد كتب شكر مضافة</td></tr>';
+            thanks.forEach(t => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td data-label="الجهة المانحة:"><strong>${t.giver}</strong></td>
+                        <td data-label="العدد:">${t.num}</td>
+                        <td data-label="التاريخ:">${t.date}</td>
+                        <td data-label="موضوع الشكر:">${t.subject}</td>
+                        <td data-label="إجراء:"><button class="btn-delete" onclick="deleteItem('exp_thanks', ${t.id})"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>`;
+            });
+        }
+
+        function addThank() {
+            const giver = document.getElementById('thank_giver').value;
+            const num = document.getElementById('thank_num').value;
+            const date = document.getElementById('thank_date').value;
+            const subject = document.getElementById('thank_subject').value;
+
+            if(!giver || !date) return alert('يرجى كتابة الجهة المانحة والتاريخ على الأقل!');
+            
+            thanks.push({ id: Date.now(), giver, num, date, subject });
+            localStorage.setItem('exp_thanks', JSON.stringify(thanks));
+            renderThanks();
+            
+            // تصفير الحقول ما عدا التاريخ لتسهيل الإدخال
+            document.getElementById('thank_giver').value = '';
+            document.getElementById('thank_num').value = '';
+            document.getElementById('thank_subject').value = '';
+        }
+
+        // دالة حذف عامة للمجموعات الأربعة
+        function deleteItem(storageKey, id) {
+            if(confirm('هل أنت متأكد من الحذف؟')) {
+                if(storageKey === 'exp_courses') { courses = courses.filter(i => i.id !== id); localStorage.setItem(storageKey, JSON.stringify(courses)); renderCourses(); }
+                if(storageKey === 'exp_exams') { exams = exams.filter(i => i.id !== id); localStorage.setItem(storageKey, JSON.stringify(exams)); renderExams(); }
+                if(storageKey === 'exp_proctors') { proctors = proctors.filter(i => i.id !== id); localStorage.setItem(storageKey, JSON.stringify(proctors)); renderProctors(); }
+                if(storageKey === 'exp_thanks') { thanks = thanks.filter(i => i.id !== id); localStorage.setItem(storageKey, JSON.stringify(thanks)); renderThanks(); }
+            }
+        }
+
+        // التحميل عند بدء الصفحة
+        window.onload = function() {
+            renderCourses();
+            renderExams();
+            renderProctors();
+            renderThanks();
+        };
+    </script>
+</body>
+</html>

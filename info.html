@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معلوماتي الشخصية والوظيفية - إدارة المدرسة</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --btn-hover: #2980b9;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --success-color: #27ae60;
+        }
+
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .page-container { width: 100%; max-width: 950px; }
+        
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; background-color: var(--primary-color); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; margin-bottom: 20px; transition: all 0.3s ease; width: fit-content; }
+        .back-btn:hover { background-color: var(--btn-hover); transform: translateX(5px); }
+
+        .content-card { background-color: var(--card-bg); border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); padding: 30px; box-sizing: border-box; margin-bottom: 30px; width: 100%; }
+        .page-title { text-align: center; color: var(--primary-color); margin-top: 0; margin-bottom: 30px; font-size: 1.8rem; border-bottom: 2px solid var(--accent-color); padding-bottom: 15px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+
+        /* تصميم الأقسام */
+        .section-title { font-size: 1.3rem; color: var(--secondary-color); margin-bottom: 15px; margin-top: 25px; display: flex; align-items: center; gap: 10px; border-right: 4px solid var(--accent-color); padding-right: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; background-color: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px solid #e9ecef; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-weight: 700; color: var(--secondary-color); font-size: 1.05rem; display: flex; align-items: center; flex-wrap: wrap; }
+        .input-group input, .input-group select { font-family: 'Tajawal', sans-serif; font-size: 1.05rem; padding: 12px; border: 1px solid #dcdde1; border-radius: 8px; outline: none; width: 100%; box-sizing: border-box; background-color: #fff; transition: all 0.3s; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); }
+
+        /* شارة مدة الخدمة والاستحقاقات */
+        .duration-badge { background-color: #e8f4f8; color: var(--accent-color); padding: 3px 10px; border-radius: 20px; font-size: 0.85rem; margin-right: auto; display: none; border: 1px solid #bce0f0; }
+        .due-badge { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .due-passed { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+
+        .btn-save { background-color: var(--success-color); color: white; border: none; padding: 15px; border-radius: 10px; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease; display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; margin-top: 30px; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3); }
+        .btn-save:hover { background-color: #219150; transform: translateY(-2px); }
+
+        .toast-msg { visibility: hidden; min-width: 250px; background-color: var(--success-color); color: #fff; text-align: center; border-radius: 8px; padding: 15px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 1.1rem; font-weight: 700; opacity: 0; transition: opacity 0.5s, bottom 0.5s; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .toast-msg.show { visibility: visible; opacity: 1; bottom: 50px; }
+
+        @media (max-width: 768px) {
+            .content-card { padding: 20px 15px; }
+            .form-grid { grid-template-columns: 1fr; gap: 15px; padding: 15px; }
+            .duration-badge { margin-right: 10px; margin-top: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+        <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-right"></i> الرجوع للرئيسية</a>
+
+        <div class="content-card">
+            <h2 class="page-title"><i class="fa-solid fa-id-card-clip"></i> السجل الوظيفي والشخصي</h2>
+            
+            <!-- القسم الأول: المعلومات الشخصية -->
+            <h3 class="section-title"><i class="fa-solid fa-user"></i> المعلومات الشخصية</h3>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>الاسم الكامل</label>
+                    <input type="text" id="info_name" placeholder="الاسم الرباعي واللقب">
+                </div>
+                <div class="input-group">
+                    <label>رقم الهاتف</label>
+                    <input type="tel" id="info_phone" placeholder="07...">
+                </div>
+                <div class="input-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="info_email" placeholder="example@email.com">
+                </div>
+                <div class="input-group">
+                    <label>العنوان السكني</label>
+                    <input type="text" id="info_address" placeholder="المحافظة - المنطقة">
+                </div>
+            </div>
+
+            <!-- القسم الثاني: المعلومات الأكاديمية -->
+            <h3 class="section-title"><i class="fa-solid fa-graduation-cap"></i> المعلومات الأكاديمية</h3>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>الجامعة</label>
+                    <input type="text" id="info_uni" placeholder="اسم الجامعة">
+                </div>
+                <div class="input-group">
+                    <label>الكلية</label>
+                    <input type="text" id="info_college" placeholder="اسم الكلية">
+                </div>
+                <div class="input-group">
+                    <label>التخصص</label>
+                    <input type="text" id="info_major" placeholder="الشهادة (مثال: بكالوريوس)">
+                </div>
+                <div class="input-group">
+                    <label>الاختصاص الدقيق</label>
+                    <input type="text" id="info_spec" placeholder="مثال: علوم">
+                </div>
+                <div class="input-group">
+                    <label>سنة التخرج</label>
+                    <input type="number" id="info_gradYear" placeholder="السنة (مثال: 2015)">
+                </div>
+            </div>
+
+            <!-- القسم الثالث: المعلومات الوظيفية -->
+            <h3 class="section-title"><i class="fa-solid fa-briefcase"></i> المعلومات الوظيفية</h3>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>العنوان الوظيفي</label>
+                    <input type="text" id="info_jobTitle" placeholder="مثال: معلم">
+                </div>
+                <div class="input-group">
+                    <label>الدرجة الوظيفية</label>
+                    <input type="text" id="info_jobGrade" placeholder="مثال: السابعة">
+                </div>
+                <div class="input-group">
+                    <label>المرحلة الوظيفية</label>
+                    <input type="text" id="info_jobStage" placeholder="المرحلة">
+                </div>
+                <div class="input-group">
+                    <label>تاريخ أول مباشرة بالتعيين <span id="dur_firstDate" class="duration-badge"></span></label>
+                    <input type="date" id="info_firstDate" onchange="updateDurations()">
+                </div>
+                <div class="input-group">
+                    <label>تاريخ المباشرة في المدرسة الحالية <span id="dur_schoolDate" class="duration-badge"></span></label>
+                    <input type="date" id="info_schoolDate" onchange="updateDurations()">
+                </div>
+                <div class="input-group">
+                    <label>تاريخ آخر علاوة <span id="dur_lastBonus" class="duration-badge"></span></label>
+                    <input type="date" id="info_lastBonus" onchange="updateDurations()">
+                </div>
+                <div class="input-group">
+                    <label>مدة الترفيع (بالسنوات)</label>
+                    <input type="number" id="info_promotionYears" placeholder="مثال: 4 أو 5" onchange="updateDurations()" onkeyup="updateDurations()">
+                </div>
+                <div class="input-group">
+                    <label>تاريخ آخر ترفيع <span id="dur_lastPromotion" class="duration-badge"></span></label>
+                    <input type="date" id="info_lastPromotion" onchange="updateDurations()">
+                </div>
+            </div>
+
+            <!-- القسم الرابع: الخبرات واللجان -->
+            <h3 class="section-title"><i class="fa-solid fa-medal"></i> الخبرات واللجان</h3>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>عدد سنوات تدريس مادة العلوم</label>
+                    <input type="number" id="info_yearsSci" placeholder="بالسنوات" min="0">
+                </div>
+                <div class="input-group">
+                    <label>عدد سنوات تدريس الصف السادس</label>
+                    <input type="number" id="info_years6th" placeholder="بالسنوات" min="0">
+                </div>
+                <div class="input-group">
+                    <label>مشاركات مراكز الفحص <span style="font-size:0.85rem; color:#e74c3c; margin-right:5px;">(تلقائي من سجل الخبرات)</span></label>
+                    <input type="number" id="info_examCenter" readonly style="background-color: #f1f2f6; cursor: not-allowed; border-color: #e9ecef;">
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="savePersonalInfo()">
+                <i class="fa-solid fa-floppy-disk"></i> حفظ جميع المعلومات
+            </button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast-msg"><i class="fa-solid fa-check-double"></i> تم تحديث ملفك الشخصي بنجاح!</div>
+
+    <script>
+        // قمنا بإزالة info_examCenter من الحفظ اليدوي لكي لا يتعارض مع التحديث التلقائي
+        const fields = [
+            'info_name', 'info_phone', 'info_email', 'info_address',
+            'info_uni', 'info_college', 'info_major', 'info_spec', 'info_gradYear',
+            'info_jobTitle', 'info_jobGrade', 'info_jobStage', 
+            'info_firstDate', 'info_schoolDate', 
+            'info_lastBonus', 'info_promotionYears', 'info_lastPromotion',
+            'info_yearsSci', 'info_years6th'
+        ];
+
+        window.onload = function() {
+            // استرجاع الحقول النصية
+            fields.forEach(field => {
+                const storedValue = localStorage.getItem(field);
+                if (storedValue) {
+                    document.getElementById(field).value = storedValue;
+                }
+            });
+
+            // جلب عدد مراكز الفحص من صفحة الخبرات (بشكل تلقائي)
+            const exams = JSON.parse(localStorage.getItem('exp_exams')) || [];
+            document.getElementById('info_examCenter').value = exams.length;
+
+            // البيانات الافتراضية للمرة الأولى
+            if (!localStorage.getItem('info_name')) document.getElementById('info_name').value = "محمد حازم";
+            if (!localStorage.getItem('info_major')) document.getElementById('info_major').value = "بكالوريوس";
+            if (!localStorage.getItem('info_spec')) document.getElementById('info_spec').value = "علوم";
+            if (!localStorage.getItem('info_jobTitle')) document.getElementById('info_jobTitle').value = "معلم";
+            if (!localStorage.getItem('info_firstDate')) document.getElementById('info_firstDate').value = "2019-12-31";
+
+            // تحديث الحسابات للتواريخ
+            updateDurations();
+        };
+
+        // دالة تحويل الأرقام إلى نصوص عربية صحيحة (لحساب الخدمة)
+        function formatDuration(years, months) {
+            if (years === 0 && months === 0) return "حديثاً (أقل من شهر)";
+            
+            let yStr = "";
+            if (years === 1) yStr = "سنة";
+            else if (years === 2) yStr = "سنتان";
+            else if (years >= 3 && years <= 10) yStr = years + " سنوات";
+            else if (years > 10) yStr = years + " سنة";
+
+            let mStr = "";
+            if (months === 1) mStr = "شهر";
+            else if (months === 2) mStr = "شهران";
+            else if (months >= 3 && months <= 10) mStr = months + " أشهر";
+            else if (months > 10) mStr = months + " شهراً";
+
+            if (yStr && mStr) return yStr + " و " + mStr;
+            return yStr + mStr;
+        }
+
+        // دالة الحساب وعرض النتيجة لتواريخ المباشرة (الماضية)
+        function calculateAndDisplay(dateString, elementId) {
+            const el = document.getElementById(elementId);
+            if (!dateString) {
+                el.style.display = 'none';
+                return;
+            }
+            
+            const start = new Date(dateString);
+            const today = new Date();
+            
+            if (start > today) {
+                el.innerText = "تاريخ مستقبلي!";
+                el.className = "duration-badge";
+                el.style.display = 'inline-block';
+                return;
+            }
+
+            let years = today.getFullYear() - start.getFullYear();
+            let months = today.getMonth() - start.getMonth();
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            el.innerText = formatDuration(years, months);
+            el.className = "duration-badge";
+            el.style.display = 'inline-block';
+        }
+
+        // دالة حساب تواريخ الاستحقاق (العلاوة والترفيع)
+        function calculateDueDate(dateId, yearsToAdd, badgeId) {
+            const dateStr = document.getElementById(dateId).value;
+            const badge = document.getElementById(badgeId);
+            
+            if (!dateStr || yearsToAdd <= 0) {
+                badge.style.display = 'none';
+                return;
+            }
+
+            const date = new Date(dateStr);
+            date.setFullYear(date.getFullYear() + yearsToAdd);
+            
+            // تنسيق التاريخ يدوياً لتجنب مشاكل المناطق الزمنية
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            const formattedDate = `${yyyy}-${mm}-${dd}`;
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            date.setHours(0,0,0,0);
+
+            if (date <= today) {
+                badge.innerText = "الاستحقاق: " + formattedDate + " (مستحق الآن)";
+                badge.className = "duration-badge due-passed";
+            } else {
+                badge.innerText = "الاستحقاق القادم: " + formattedDate;
+                badge.className = "duration-badge due-badge";
+            }
+            badge.style.display = 'inline-block';
+        }
+
+        // تشغيل جميع الحسابات
+        function updateDurations() {
+            // الخدمة وتواريخ المباشرة
+            calculateAndDisplay(document.getElementById('info_firstDate').value, 'dur_firstDate');
+            calculateAndDisplay(document.getElementById('info_schoolDate').value, 'dur_schoolDate');
+            
+            // العلاوة (بعد سنة واحدة)
+            calculateDueDate('info_lastBonus', 1, 'dur_lastBonus');
+            
+            // الترفيع (حسب عدد السنوات المدخل)
+            const promYears = parseInt(document.getElementById('info_promotionYears').value) || 0;
+            calculateDueDate('info_lastPromotion', promYears, 'dur_lastPromotion');
+        }
+
+        // حفظ البيانات
+        function savePersonalInfo() {
+            fields.forEach(field => {
+                const val = document.getElementById(field).value;
+                localStorage.setItem(field, val);
+            });
+
+            const nameVal = document.getElementById('info_name').value;
+            if (nameVal.trim() !== '') localStorage.setItem('teacherName', nameVal);
+
+            const toast = document.getElementById("toast");
+            toast.className = "toast-msg show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+            
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

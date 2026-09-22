@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مواعيد الامتحانات - إدارة المدرسة</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --btn-hover: #2980b9;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .page-container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--primary-color);
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+
+        .back-btn:hover {
+            background-color: var(--btn-hover);
+            transform: translateX(5px);
+        }
+
+        .content-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            padding: 30px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .page-title {
+            text-align: center;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        /* تصميم قسم إضافة امتحان جديد */
+        .add-exam-form {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr;
+            gap: 15px;
+            align-items: end;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .input-group input {
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.05rem;
+            padding: 10px;
+            border: 1px solid #dcdde1;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .add-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            height: 44px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .add-btn:hover {
+            background-color: var(--btn-hover);
+        }
+
+        /* تصميم جدول الامتحانات (شاشة الحاسوب) */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 700;
+        }
+
+        td {
+            background-color: #fff;
+            vertical-align: middle;
+        }
+
+        .days-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .days-future { background-color: #d4edda; color: #155724; }
+        .days-today { background-color: #fff3cd; color: #856404; }
+        .days-past { background-color: #f8d7da; color: #721c24; }
+
+        .action-btns {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-small {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            color: white;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-edit { background-color: var(--warning-color); }
+        .btn-save { background-color: var(--success-color); }
+        .btn-delete { background-color: var(--danger-color); }
+
+        .edit-input {
+            width: 90%;
+            padding: 8px;
+            font-family: 'Tajawal', sans-serif;
+            border: 1px solid var(--accent-color);
+            border-radius: 5px;
+            text-align: center;
+            outline: none;
+        }
+
+        /* تحويل الجدول إلى بطاقات في شاشات الهواتف (Responsive Cards) */
+        @media (max-width: 768px) {
+            .content-card {
+                padding: 20px 15px;
+            }
+
+            .add-exam-form {
+                grid-template-columns: 1fr; /* جعل حقول الإضافة عمودية */
+                gap: 12px;
+            }
+
+            .add-btn { 
+                height: auto; 
+                padding: 15px; 
+                margin-top: 5px;
+            }
+
+            /* إخفاء رأس الجدول */
+            thead {
+                display: none;
+            }
+
+            /* تحويل الصفوف إلى بطاقات */
+            table, tbody, tr, td {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            tr {
+                border: 1px solid #e9ecef;
+                border-radius: 12px;
+                margin-bottom: 15px;
+                background-color: #fff;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+                overflow: hidden;
+            }
+
+            td {
+                border: none;
+                border-bottom: 1px dashed #eee;
+                padding: 12px 15px;
+                text-align: left; /* جعل النص لليسار والمسمى لليمين */
+                position: relative;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            td:last-child {
+                border-bottom: none;
+                justify-content: center;
+                background-color: #f8f9fa;
+                padding: 15px;
+            }
+
+            /* استدعاء المسميات باستخدام الخاصية data-label المضافة في الجافاسكربت */
+            td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                color: var(--secondary-color);
+                margin-left: 10px;
+            }
+
+            .edit-input {
+                width: 60%;
+                text-align: right;
+            }
+
+            .action-btns {
+                width: 100%;
+            }
+
+            .btn-small {
+                flex: 1; /* لتتساوى الأزرار في العرض */
+                justify-content: center;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+        <a href="index.html" class="back-btn">
+            <i class="fa-solid fa-arrow-right"></i>
+            الرجوع للرئيسية
+        </a>
+
+        <div class="content-card">
+            <h2 class="page-title"><i class="fa-regular fa-clock"></i> مواعيد الامتحانات</h2>
+            
+            <div class="add-exam-form">
+                <div class="input-group">
+                    <label>اسم المادة</label>
+                    <input type="text" id="newSubject" placeholder="مثال: علوم الشهر الأول">
+                </div>
+                <div class="input-group">
+                    <label>تاريخ الامتحان</label>
+                    <input type="date" id="newDate">
+                </div>
+                <button class="add-btn" onclick="addExam()">
+                    <i class="fa-solid fa-plus"></i> إضافة موعد
+                </button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>المادة</th>
+                        <th>التاريخ</th>
+                        <th>الوقت المتبقي</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="examsBody">
+                    <!-- التوليد عبر الجافاسكربت -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let exams = JSON.parse(localStorage.getItem('examsData')) || [];
+
+        function getRemainingDaysInfo(dateString) {
+            if (!dateString) return { text: "غير محدد", class: "" };
+            
+            const examDate = new Date(dateString);
+            const today = new Date();
+            
+            examDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            
+            const diffTime = examDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            
+            if (diffDays > 0) {
+                return { text: `باقي ${diffDays} يوم`, class: "days-future" };
+            } else if (diffDays === 0) {
+                return { text: "الامتحان اليوم!", class: "days-today" };
+            } else {
+                return { text: `انتهى منذ ${Math.abs(diffDays)} يوم`, class: "days-past" };
+            }
+        }
+
+        function renderExams() {
+            const tbody = document.getElementById('examsBody');
+            tbody.innerHTML = ''; 
+
+            exams.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            if(exams.length === 0) {
+                // إضافة رسالة فارغة مناسبة للهواتف أيضاً
+                tbody.innerHTML = `<tr><td colspan="4" data-label="تنبيه" style="text-align:center; color:#7f8c8d; justify-content:center;">لا توجد امتحانات مضافة حالياً.</td></tr>`;
+                return;
+            }
+
+            exams.forEach(exam => {
+                const tr = document.createElement('tr');
+                tr.id = `row-${exam.id}`;
+                
+                const daysInfo = getRemainingDaysInfo(exam.date);
+
+                // أضفنا (data-label) هنا لكي يستخدمها الـ CSS في شاشات الهاتف
+                tr.innerHTML = `
+                    <td data-label="المادة:" class="subj-cell"><span class="subj-text">${exam.subject}</span></td>
+                    <td data-label="التاريخ:" class="date-cell"><span class="date-text">${exam.date}</span></td>
+                    <td data-label="الوقت المتبقي:"><span class="days-badge ${daysInfo.class}">${daysInfo.text}</span></td>
+                    <td data-label="الإجراءات:" class="action-btns">
+                        <button class="btn-small btn-edit" onclick="toggleEdit(${exam.id})"><i class="fa-solid fa-pen"></i> تعديل</button>
+                        <button class="btn-small btn-delete" onclick="deleteExam(${exam.id})"><i class="fa-solid fa-trash"></i> حذف</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addExam() {
+            const subjectInput = document.getElementById('newSubject');
+            const dateInput = document.getElementById('newDate');
+            
+            if (subjectInput.value.trim() === '' || dateInput.value === '') {
+                alert('الرجاء إدخال اسم المادة وتحديد التاريخ!');
+                return;
+            }
+
+            const newExam = {
+                id: Date.now(),
+                subject: subjectInput.value.trim(),
+                date: dateInput.value
+            };
+
+            exams.push(newExam);
+            saveData();
+            
+            subjectInput.value = '';
+            dateInput.value = '';
+        }
+
+        function toggleEdit(id) {
+            const tr = document.getElementById(`row-${id}`);
+            const isEditing = tr.classList.contains('is-editing');
+            
+            if (!isEditing) {
+                const subjText = tr.querySelector('.subj-text').innerText;
+                const dateText = tr.querySelector('.date-text').innerText;
+                
+                tr.querySelector('.subj-cell').innerHTML = `<input type="text" class="edit-input edit-subj" value="${subjText}">`;
+                tr.querySelector('.date-cell').innerHTML = `<input type="date" class="edit-input edit-date" value="${dateText}">`;
+                
+                const editBtn = tr.querySelector('.btn-edit');
+                editBtn.innerHTML = '<i class="fa-solid fa-check"></i> حفظ';
+                editBtn.classList.replace('btn-edit', 'btn-save');
+                
+                // إخفاء زر الحذف مؤقتاً أثناء التعديل لترتيب الشاشة
+                tr.querySelector('.btn-delete').style.display = 'none';
+                
+                tr.classList.add('is-editing');
+            } else {
+                const newSubj = tr.querySelector('.edit-subj').value;
+                const newDate = tr.querySelector('.edit-date').value;
+                
+                if (newSubj.trim() === '' || newDate === '') {
+                    alert('لا يمكن ترك الحقول فارغة!');
+                    return;
+                }
+
+                const examIndex = exams.findIndex(e => e.id === id);
+                exams[examIndex].subject = newSubj;
+                exams[examIndex].date = newDate;
+                
+                saveData(); 
+            }
+        }
+
+        function deleteExam(id) {
+            if(confirm('هل أنت متأكد من حذف هذا الموعد؟')) {
+                exams = exams.filter(e => e.id !== id);
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('examsData', JSON.stringify(exams));
+            renderExams();
+        }
+
+        window.onload = renderExams;
+    </script>
+</body>
+</html>

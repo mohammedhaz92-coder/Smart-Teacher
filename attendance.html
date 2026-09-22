@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل الغياب والحضور - إدارة المدرسة</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --btn-hover: #2980b9;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
+        }
+
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .page-container { width: 100%; max-width: 900px; }
+        
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; background-color: var(--primary-color); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; margin-bottom: 20px; transition: all 0.3s ease; width: fit-content; }
+        .back-btn:hover { background-color: var(--btn-hover); transform: translateX(5px); }
+
+        .alert-box { background-color: #fff3cd; color: #856404; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: 700; border: 1px solid #ffeeba; display: none; }
+
+        .content-card { background-color: var(--card-bg); border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); padding: 30px; box-sizing: border-box; margin-bottom: 30px; width: 100%; }
+        .page-title { text-align: center; color: var(--primary-color); margin-top: 0; margin-bottom: 25px; font-size: 1.6rem; border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; }
+
+        /* نظام التبويبات (Tabs) */
+        .tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 25px; flex-wrap: wrap; }
+        .tab-btn { background-color: #e9ecef; color: var(--text-main); border: none; padding: 12px 25px; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
+        .tab-btn.active { background-color: var(--primary-color); color: #fff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* تصميم النماذج */
+        .filter-section { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background-color: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #e9ecef; margin-bottom: 20px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-weight: 700; color: var(--secondary-color); font-size: 1.05rem; }
+        .input-group select, .input-group input { font-family: 'Tajawal', sans-serif; font-size: 1.05rem; padding: 10px; border: 1px solid #dcdde1; border-radius: 8px; outline: none; width: 100%; box-sizing: border-box; background-color: #fff; }
+        .input-group select:focus, .input-group input:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); }
+        .input-group select { cursor: pointer; }
+
+        .search-box { grid-column: 1 / -1; display: flex; gap: 10px; }
+        .search-box input { flex-grow: 1; }
+
+        .btn { border: none; padding: 12px; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; justify-content: center; align-items: center; gap: 8px; color: white; }
+        .btn-primary { background-color: var(--primary-color); width: 100%; } .btn-primary:hover { background-color: var(--secondary-color); }
+        .btn-success { background-color: var(--success-color); } .btn-success:hover { background-color: #219150; }
+        .btn-danger { background-color: var(--danger-color); } .btn-danger:hover { background-color: #c0392b; }
+
+        /* القوائم والجداول */
+        .student-list { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .student-item { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .student-item.absent { border-right: 4px solid var(--danger-color); background-color: #fff5f5; }
+        
+        .student-info { display: flex; flex-direction: column; gap: 5px; }
+        .student-name { font-weight: 700; color: var(--primary-color); font-size: 1.1rem; }
+        
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
+        .status-present { background-color: #e8f5e9; color: #2e7d32; }
+        .status-absent { background-color: #ffebee; color: #c62828; }
+
+        .attendance-actions { display: flex; gap: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #e9ecef; padding: 12px; text-align: center; font-size: 1.05rem; }
+        th { background-color: var(--primary-color); color: white; font-weight: 700; }
+        td { background-color: #fff; vertical-align: middle; }
+
+        .date-header { text-align: center; color: var(--secondary-color); margin-bottom: 20px; font-size: 1.2rem; font-weight: bold; }
+
+        @media (max-width: 768px) {
+            .content-card { padding: 20px 15px; }
+            .filter-section { grid-template-columns: 1fr; }
+            .tabs { flex-direction: column; }
+            .tab-btn { justify-content: center; }
+            .student-item { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .attendance-actions { width: 100%; justify-content: space-between; }
+            .attendance-actions button { flex: 1; }
+            
+            thead { display: none; }
+            table, tbody, tr, td { display: block; width: 100%; box-sizing: border-box; }
+            tr { border: 1px solid #e9ecef; border-radius: 12px; margin-bottom: 15px; background-color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.03); overflow: hidden; }
+            td { border: none; border-bottom: 1px dashed #eee; padding: 12px 15px; text-align: right; position: relative; display: flex; justify-content: space-between; align-items: center; }
+            td:last-child { border-bottom: none; }
+            td::before { content: attr(data-label); font-weight: 700; color: var(--secondary-color); margin-left: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+        <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-right"></i> الرجوع للرئيسية</a>
+
+        <div class="alert-box" id="alertBox">
+            <i class="fa-solid fa-triangle-exclamation"></i> يرجى التأكد من إضافة (صفوف) و (تلاميذ) مسبقاً!
+        </div>
+
+        <div class="content-card">
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('recordTab', this)"><i class="fa-solid fa-user-check"></i> تسجيل الغياب</button>
+                <button class="tab-btn" onclick="switchTab('viewTab', this)"><i class="fa-solid fa-list"></i> عرض غيابات اليوم</button>
+            </div>
+
+            <!-- ================= التبويب الأول: تسجيل الغياب ================= -->
+            <div id="recordTab" class="tab-content active">
+                <h2 class="page-title">سجل الحضور والغياب اليومي</h2>
+                
+                <div class="filter-section">
+                    <div class="input-group">
+                        <label>التاريخ:</label>
+                        <input type="date" id="attendanceDate">
+                    </div>
+                    <div class="input-group">
+                        <label>الصف والشعبة:</label>
+                        <select id="classSelect" onchange="loadStudentsForAttendance()"></select>
+                    </div>
+                    <div class="input-group search-box">
+                        <input type="text" id="searchInput" placeholder="ابحث عن اسم التلميذ..." onkeyup="filterStudents()">
+                    </div>
+                </div>
+
+                <div class="student-list" id="studentsList">
+                    <!-- سيتم توليد قائمة الطلاب هنا -->
+                    <div style="text-align:center; color:#7f8c8d; padding:20px;">الرجاء اختيار الصف لعرض قائمة التلاميذ.</div>
+                </div>
+            </div>
+
+            <!-- ================= التبويب الثاني: عرض غيابات اليوم ================= -->
+            <div id="viewTab" class="tab-content">
+                <h2 class="page-title">قائمة الغائبين لهذا اليوم</h2>
+                
+                <div class="filter-section" style="grid-template-columns: 1fr;">
+                    <div class="input-group" style="flex-direction: row; align-items: center; gap: 15px;">
+                        <label style="white-space: nowrap;">تاريخ العرض:</label>
+                        <input type="date" id="viewDate" onchange="viewAbsents()">
+                    </div>
+                </div>
+
+                <div class="date-header" id="viewDateDisplay"></div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>التسلسل</th>
+                            <th>اسم التلميذ الغائب</th>
+                            <th>الصف والشعبة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="absentBody">
+                        <!-- سيتم توليد الغائبين هنا -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const savedClasses = JSON.parse(localStorage.getItem('savedClasses')) || [];
+        const allStudents = JSON.parse(localStorage.getItem('studentsData')) || [];
+        // بنية البيانات: { "YYYY-MM-DD_studentId": "absent" }
+        let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
+
+        let currentClassStudents = [];
+
+        window.onload = function() {
+            // تعيين تاريخ اليوم افتراضياً
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendanceDate').value = today;
+            document.getElementById('viewDate').value = today;
+
+            if (savedClasses.length === 0 || allStudents.length === 0) {
+                document.getElementById('alertBox').style.display = 'block';
+            } else {
+                let classOptions = '<option value="">- اختر الصف والشعبة -</option>';
+                savedClasses.sort().forEach(c => classOptions += `<option value="${c}">${c}</option>`);
+                document.getElementById('classSelect').innerHTML = classOptions;
+            }
+            
+            // تهيئة تبويب العرض
+            viewAbsents();
+        };
+
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+            
+            if(tabId === 'viewTab') viewAbsents();
+        }
+
+        // ================= وظائف تبويب التسجيل =================
+
+        function loadStudentsForAttendance() {
+            const cls = document.getElementById('classSelect').value;
+            const date = document.getElementById('attendanceDate').value;
+            const listContainer = document.getElementById('studentsList');
+            document.getElementById('searchInput').value = '';
+
+            if(!cls || !date) {
+                listContainer.innerHTML = '<div style="text-align:center; color:#7f8c8d; padding:20px;">الرجاء اختيار التاريخ والصف لعرض التلاميذ.</div>';
+                return;
+            }
+
+            currentClassStudents = allStudents.filter(s => s.class === cls);
+            currentClassStudents.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+            renderStudentList(currentClassStudents, date);
+        }
+
+        function renderStudentList(studentsToRender, date) {
+            const listContainer = document.getElementById('studentsList');
+            listContainer.innerHTML = '';
+
+            if(studentsToRender.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center; color:#7f8c8d; padding:20px;">لا يوجد تلاميذ في هذا الصف.</div>';
+                return;
+            }
+
+            studentsToRender.forEach(student => {
+                const recordKey = `${date}_${student.id}`;
+                const isAbsent = attendanceData[recordKey] === 'absent';
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `student-item ${isAbsent ? 'absent' : ''}`;
+                itemDiv.id = `student_row_${student.id}`;
+                
+                const statusHtml = isAbsent 
+                    ? '<span class="status-badge status-absent" id="badge_'+student.id+'">غائب</span>'
+                    : '<span class="status-badge status-present" id="badge_'+student.id+'" style="display:none;">حاضر</span>';
+
+                itemDiv.innerHTML = `
+                    <div class="student-info">
+                        <span class="student-name">${student.name}</span>
+                        ${statusHtml}
+                    </div>
+                    <div class="attendance-actions">
+                        <button class="btn btn-danger" onclick="markAbsent(${student.id}, '${date}')" ${isAbsent ? 'disabled style="opacity:0.5"' : ''} id="btn_absent_${student.id}">
+                            <i class="fa-solid fa-xmark"></i> غائب
+                        </button>
+                        <button class="btn btn-success" onclick="markPresent(${student.id}, '${date}')" ${!isAbsent ? 'disabled style="opacity:0.5"' : ''} id="btn_present_${student.id}">
+                            <i class="fa-solid fa-check"></i> حاضر (إلغاء الغياب)
+                        </button>
+                    </div>
+                `;
+                listContainer.appendChild(itemDiv);
+            });
+        }
+
+        function filterStudents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const date = document.getElementById('attendanceDate').value;
+            
+            if(!currentClassStudents.length) return;
+
+            const filtered = currentClassStudents.filter(s => s.name.toLowerCase().includes(searchTerm));
+            renderStudentList(filtered, date);
+        }
+
+        function markAbsent(studentId, date) {
+            const recordKey = `${date}_${studentId}`;
+            attendanceData[recordKey] = 'absent';
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+            updateRowUI(studentId, true);
+        }
+
+        function markPresent(studentId, date) {
+            const recordKey = `${date}_${studentId}`;
+            delete attendanceData[recordKey]; // إذا كان حاضراً نحذف السجل لتوفير المساحة
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+            updateRowUI(studentId, false);
+        }
+
+        function updateRowUI(studentId, isAbsent) {
+            const row = document.getElementById(`student_row_${studentId}`);
+            const badge = document.getElementById(`badge_${studentId}`);
+            const btnAbsent = document.getElementById(`btn_absent_${studentId}`);
+            const btnPresent = document.getElementById(`btn_present_${studentId}`);
+
+            if(row) {
+                if(isAbsent) {
+                    row.classList.add('absent');
+                    badge.className = 'status-badge status-absent';
+                    badge.innerText = 'غائب';
+                    badge.style.display = 'inline-block';
+                    btnAbsent.disabled = true; btnAbsent.style.opacity = '0.5';
+                    btnPresent.disabled = false; btnPresent.style.opacity = '1';
+                } else {
+                    row.classList.remove('absent');
+                    badge.style.display = 'none'; // نخفي شارة الحاضر لتقليل الفوضى البصرية
+                    btnAbsent.disabled = false; btnAbsent.style.opacity = '1';
+                    btnPresent.disabled = true; btnPresent.style.opacity = '0.5';
+                }
+            }
+        }
+
+        // ================= وظائف تبويب العرض =================
+
+        function viewAbsents() {
+            const date = document.getElementById('viewDate').value;
+            const tbody = document.getElementById('absentBody');
+            const dateDisplay = document.getElementById('viewDateDisplay');
+            
+            if(!date) return;
+            
+            // تنسيق التاريخ للعرض
+            const dateObj = new Date(date);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateDisplay.innerText = `الغيابات ليوم: ${dateObj.toLocaleDateString('ar-IQ', options)}`;
+
+            tbody.innerHTML = '';
+            
+            let absentCount = 0;
+            
+            // تجميع الغائبين لهذا التاريخ
+            allStudents.forEach(student => {
+                const recordKey = `${date}_${student.id}`;
+                if(attendanceData[recordKey] === 'absent') {
+                    absentCount++;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td data-label="التسلسل:"><b>${absentCount}</b></td>
+                        <td data-label="اسم التلميذ:" style="font-weight:700; color:var(--danger-color);">${student.name}</td>
+                        <td data-label="الصف والشعبة:">${student.class}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+
+            if(absentCount === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#27ae60; padding:20px; font-weight:bold;">لا يوجد أي غياب مسجل في هذا اليوم. جميع التلاميذ حاضرون.</td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>

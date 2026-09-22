@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة مواد - إدارة المدرسة</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --btn-hover: #2980b9;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .page-container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--primary-color);
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+
+        .back-btn:hover {
+            background-color: var(--btn-hover);
+            transform: translateX(5px);
+        }
+
+        .content-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            padding: 30px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .page-title {
+            text-align: center;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        /* تصميم قسم الإضافة */
+        .add-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 30px;
+        }
+
+        .select-group {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .select-group label {
+            font-weight: 700;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+
+        .styled-select {
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.1rem;
+            padding: 12px;
+            border: 1px solid #dcdde1;
+            border-radius: 8px;
+            outline: none;
+            background-color: #fff;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .styled-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .add-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            height: 48px;
+            border-radius: 8px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 28px; /* لمحاذاة الزر مع القائمة */
+        }
+
+        .add-btn:hover {
+            background-color: var(--btn-hover);
+        }
+
+        /* تصميم قائمة المواد المضافة */
+        .section-subtitle {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .subjects-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .subject-card {
+            background-color: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+        }
+
+        .subject-card:hover {
+            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
+        }
+
+        .subject-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .subject-name i {
+            color: var(--accent-color);
+        }
+
+        .delete-btn {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .delete-btn:hover {
+            background-color: #fdeaea;
+        }
+
+        .empty-msg {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #7f8c8d;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border: 1px dashed #dcdde1;
+        }
+
+        /* للهواتف المحمولة */
+        @media (max-width: 600px) {
+            .add-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .add-btn {
+                margin-top: 0;
+                justify-content: center;
+            }
+            .subjects-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+        <a href="index.html" class="back-btn">
+            <i class="fa-solid fa-arrow-right"></i>
+            الرجوع للرئيسية
+        </a>
+
+        <div class="content-card">
+            <h2 class="page-title"><i class="fa-solid fa-book"></i> إدارة المواد الدراسية</h2>
+            
+            <div class="add-section">
+                <div class="select-group">
+                    <label>اختر المادة:</label>
+                    <select id="subjectSelect" class="styled-select">
+                        <option value="التربية الإسلامية">التربية الإسلامية</option>
+                        <option value="اللغة العربية">اللغة العربية</option>
+                        <option value="اللغة الانجليزية">اللغة الانجليزية</option>
+                        <option value="الرياضيات">الرياضيات</option>
+                        <option value="العلوم" selected>العلوم</option>
+                        <option value="الاجتماعيات">الاجتماعيات</option>
+                        <option value="التربية الفنية">التربية الفنية</option>
+                        <option value="التربية الرياضية">التربية الرياضية</option>
+                    </select>
+                </div>
+                <button class="add-btn" onclick="addSubject()">
+                    <i class="fa-solid fa-plus"></i> إضافة المادة
+                </button>
+            </div>
+
+            <h3 class="section-subtitle">المواد المضافة حالياً:</h3>
+            <div class="subjects-list" id="subjectsListContainer">
+                <!-- سيتم عرض المواد هنا بواسطة الجافاسكربت -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // قراءة المواد المحفوظة مسبقاً، وإذا لم تكن موجودة ننشئ مصفوفة فارغة
+        let savedSubjects = JSON.parse(localStorage.getItem('savedSubjects')) || [];
+
+        function renderSubjects() {
+            const container = document.getElementById('subjectsListContainer');
+            container.innerHTML = '';
+
+            if (savedSubjects.length === 0) {
+                container.innerHTML = `<div class="empty-msg">لم تقم بإضافة أي مواد بعد.</div>`;
+                return;
+            }
+
+            savedSubjects.forEach((subject, index) => {
+                const card = document.createElement('div');
+                card.className = 'subject-card';
+                card.innerHTML = `
+                    <div class="subject-name">
+                        <i class="fa-solid fa-book-open"></i>
+                        ${subject}
+                    </div>
+                    <button class="delete-btn" onclick="deleteSubject(${index})" title="حذف المادة">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function addSubject() {
+            const selectElement = document.getElementById('subjectSelect');
+            const selectedSubject = selectElement.value;
+
+            // التحقق مما إذا كانت المادة مضافة مسبقاً لمنع التكرار
+            if (savedSubjects.includes(selectedSubject)) {
+                alert('هذه المادة مضافة مسبقاً!');
+                return;
+            }
+
+            // إضافة المادة للمصفوفة وحفظها
+            savedSubjects.push(selectedSubject);
+            localStorage.setItem('savedSubjects', JSON.stringify(savedSubjects));
+            
+            renderSubjects();
+        }
+
+        function deleteSubject(index) {
+            // حذف المادة وتحديث التخزين
+            savedSubjects.splice(index, 1);
+            localStorage.setItem('savedSubjects', JSON.stringify(savedSubjects));
+            renderSubjects();
+        }
+
+        // تشغيل دالة العرض عند فتح الصفحة
+        window.onload = renderSubjects;
+    </script>
+</body>
+</html>
