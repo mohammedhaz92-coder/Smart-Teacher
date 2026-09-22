@@ -1,0 +1,18 @@
+{
+  "name": "المعلم الذكي - منصة بذرة",
+  "short_name": "منصة بذرة",
+  "description": "نظام إدارة الصفوف والتلاميذ السحابي والمحلي",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#2c3e50",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3304/3304567.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
